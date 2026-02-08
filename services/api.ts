@@ -28,10 +28,15 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            // Handle unauthorized error (e.g., redirect to login)
-            localStorage.removeItem('swa_token');
-            localStorage.removeItem('swa_user');
-            window.location.href = '/'; // Or use a navigation state check in App.tsx
+            const message = error.response.data?.message?.toLowerCase();
+            const isPendingValidation = message && message.includes('pending validation');
+
+            if (!isPendingValidation) {
+                // Handle unauthorized error (e.g., redirect to login)
+                localStorage.removeItem('swa_token');
+                localStorage.removeItem('swa_user');
+                window.location.href = '/'; // Or use a navigation state check in App.tsx
+            }
         }
         return Promise.reject(error);
     }

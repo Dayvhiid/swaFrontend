@@ -22,4 +22,15 @@ export const userService = {
         const response = await api.patch('/user/profile', data);
         return response.data;
     },
+
+    // Admin Methods
+    getAllUsers: async (): Promise<any[]> => {
+        const response = await api.get('/admin/users');
+        return response.data;
+    },
+
+    validateUser: async (userId: string, isValidated: boolean): Promise<any> => {
+        const response = await api.patch(`/admin/users/${userId}/validate`, { isValidated });
+        return response.data;
+    },
 };

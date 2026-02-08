@@ -18,6 +18,7 @@ import EditProfileScreen from './components/EditProfileScreen';
 import ChangePasswordScreen from './components/ChangePasswordScreen';
 import NotificationSettingsScreen from './components/NotificationSettingsScreen';
 import EditConvertScreen from './components/EditConvertScreen';
+import UserManagementScreen from './components/UserManagementScreen';
 import { AuthResponse, User } from './services/authService';
 
 export default function App() {
@@ -236,6 +237,9 @@ export default function App() {
           )}
           {currentScreen === 'notification-settings' && (
             <NotificationSettingsScreen onNavigate={navigate} />
+          )}
+          {currentScreen === 'user-management' && (
+            <UserManagementScreen onNavigate={navigate} />
           )}
         </div>
       </div>

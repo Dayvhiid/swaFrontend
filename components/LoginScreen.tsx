@@ -7,7 +7,7 @@ export default function LoginScreen({ onLogin, onNavigateSignup, onNavigateForgo
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -37,8 +37,13 @@ export default function LoginScreen({ onLogin, onNavigateSignup, onNavigateForgo
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {error && (
-            <div className="p-3 bg-red-50 border border-red-200 text-red-600 text-sm rounded-xl">
-              {error}
+            <div className={`p-4 border rounded-xl flex items-start gap-3 ${error.toLowerCase().includes('pending validation') || error.toLowerCase().includes('approval')
+              ? 'bg-blue-50 border-blue-200 text-blue-700'
+              : 'bg-red-50 border-red-200 text-red-600'
+              }`}>
+              <div className="flex-1 text-sm">
+                {error}
+              </div>
             </div>
           )}
           <div>
