@@ -5,6 +5,8 @@ import SideMenu from './SideMenu';
 import logo from 'figma:asset/612f7289b99c44abc1363d55b6e8ffe9274868e3.png';
 import { dashboardService, DashboardStats } from '../services/dashboardService';
 import { User } from '../services/authService';
+import { convertService, Convert } from '../services/convertService';
+import StatHoverList from './ui/StatHoverList';
 
 interface DashboardScreenProps {
   onNavigate: (screen: string, id?: string | null) => void;
@@ -51,18 +53,55 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [pendingCount, setPendingCount] = useState(0);
+  const [pendingList, setPendingList] = useState<string[]>([]);
+  const [activeList, setActiveList] = useState<string[]>([]);
+  const [inactiveList, setInactiveList] = useState<string[]>([]);
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   const [verse] = useState(() => BIBLE_VERSES[Math.floor(Math.random() * BIBLE_VERSES.length)]);
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       setIsLoading(true);
       try {
-        const [summaryStats, pendingFollowUps] = await Promise.all([
+        const [summaryStats, pendingFollowUps, allConvertsData] = await Promise.all([
           dashboardService.getSummaryStats(),
-          dashboardService.getPendingFollowUps()
+          dashboardService.getPendingFollowUps(),
+          convertService.listConverts(1, '', { pageSize: 100 }) // Fetch more to show in hover
         ]);
         setStats(summaryStats);
+
+        // Handle pending list
         setPendingCount(pendingFollowUps.length);
+        const pendingNames = Array.from(new Set(pendingFollowUps.map((f: any) => f.name || f.convertName || 'Unknown')));
+        setPendingList(pendingNames);
+
+        // Process active/inactive from all converts
+        let list: Convert[] = [];
+        if (Array.isArray(allConvertsData)) {
+          list = allConvertsData;
+        } else if (allConvertsData && typeof allConvertsData === 'object') {
+          list = allConvertsData.converts || allConvertsData.data || allConvertsData.results || allConvertsData.items || [];
+          if (!Array.isArray(list) && allConvertsData.result) {
+            list = allConvertsData.result;
+          }
+        }
+
+        console.log('Dashboard Data Fetch - List extracted:', list.length, 'items');
+        if (list.length > 0) {
+          console.log('Sample convert:', { name: list[0].name, status: list[0].status });
+          const statuses = Array.from(new Set(list.map(c => c.status)));
+          console.log('Available statuses in list:', statuses);
+        }
+
+        const activeGroup = (list as Convert[]).filter(c => c.status?.toLowerCase() === 'active');
+        const inactiveGroup = (list as Convert[]).filter(c => c.status?.toLowerCase() !== 'active');
+
+        console.log(`Filtered: Active (${activeGroup.length}), Inactive (${inactiveGroup.length})`);
+        console.log('Inactive names:', inactiveGroup.map(c => c.name));
+
+        setActiveList(activeGroup.map(c => c.name));
+        setInactiveList(inactiveGroup.map(c => c.name));
+
       } catch (error) {
         console.error('Error fetching dashboard stats:', error);
       } finally {
@@ -116,7 +155,11 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
                 <p className="text-xs text-gray-500 mt-1">Total Converts</p>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+              <div
+                className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative group"
+                onMouseEnter={() => setHoveredCard('active')}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
                     <UserCheck className="w-5 h-5 text-green-700" />
@@ -124,9 +167,18 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{stats?.activeConverts || 0}</p>
                 <p className="text-xs text-gray-500 mt-1">Active Converts</p>
+                <StatHoverList
+                  title="Active Converts"
+                  items={activeList}
+                  isVisible={hoveredCard === 'active'}
+                />
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+              <div
+                className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative group"
+                onMouseEnter={() => setHoveredCard('inactive')}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-gray-100 rounded-xl flex items-center justify-center">
                     <UserMinus className="w-5 h-5 text-gray-700" />
@@ -134,6 +186,11 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{(stats?.totalConverts || 0) - (stats?.activeConverts || 0)}</p>
                 <p className="text-xs text-gray-500 mt-1">Inactive Converts</p>
+                <StatHoverList
+                  title="Inactive Converts"
+                  items={inactiveList}
+                  isVisible={hoveredCard === 'inactive'}
+                />
               </div>
 
               <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
@@ -146,7 +203,11 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
                 <p className="text-xs text-gray-500 mt-1">Retention Rate</p>
               </div>
 
-              <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">
+              <div
+                className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm relative group"
+                onMouseEnter={() => setHoveredCard('pending')}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
                 <div className="flex items-center justify-between mb-3">
                   <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
                     <ClipboardList className="w-5 h-5 text-orange-700" />
@@ -154,6 +215,11 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
                 </div>
                 <p className="text-2xl font-bold text-gray-900">{pendingCount}</p>
                 <p className="text-xs text-gray-500 mt-1">Pending Follow-ups</p>
+                <StatHoverList
+                  title="Pending Follow-ups"
+                  items={pendingList}
+                  isVisible={hoveredCard === 'pending'}
+                />
               </div>
 
               <div className="bg-white border border-gray-200 rounded-2xl p-4 shadow-sm">

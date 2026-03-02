@@ -162,8 +162,8 @@ export default function ReportsDashboardScreen({ onNavigate }) {
               <button
                 onClick={() => setTimePeriod('daily')}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timePeriod === 'daily'
-                    ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 Daily
@@ -171,8 +171,8 @@ export default function ReportsDashboardScreen({ onNavigate }) {
               <button
                 onClick={() => setTimePeriod('monthly')}
                 className={`px-3 py-1 text-xs font-medium rounded-md transition-colors ${timePeriod === 'monthly'
-                    ? 'bg-white text-blue-700 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-900'
+                  ? 'bg-white text-blue-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-900'
                   }`}
               >
                 Monthly

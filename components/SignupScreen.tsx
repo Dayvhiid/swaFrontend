@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, Check, Loader2 } from 'lucide-react';
 import { authService } from '../services/authService';
-import { churchService, Zone, Area, Parish } from '../services/churchService';
+import { churchService, HierarchyZone } from '../services/churchService';
 import { useEffect } from 'react';
 
 export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: any, onNavigateLogin: any }) {
@@ -19,59 +19,40 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
     role: ''
   });
 
-  const [zones, setZones] = useState<Zone[]>([]);
-  const [areas, setAreas] = useState<Area[]>([]);
-  const [parishes, setParishes] = useState<Parish[]>([]);
+  const [hierarchyTree, setHierarchyTree] = useState<HierarchyZone[]>([]);
   const [isHierarchyLoading, setIsHierarchyLoading] = useState(false);
 
   useEffect(() => {
-    fetchZones();
+    fetchHierarchy();
   }, []);
 
-  const fetchZones = async () => {
+  const fetchHierarchy = async () => {
+    setIsHierarchyLoading(true);
     try {
-      const data = await churchService.getZones();
-      setZones(data);
+      const data = await churchService.getHierarchyTree();
+      setHierarchyTree(data);
     } catch (err) {
-      console.error('Failed to fetch zones', err);
+      console.error('Failed to fetch hierarchy tree', err);
+    } finally {
+      setIsHierarchyLoading(false);
     }
   };
 
-  const handleZoneChange = async (zoneId: string) => {
+  const handleZoneChange = (zoneId: string) => {
     handleChange('zone', zoneId);
     handleChange('area', '');
     handleChange('parish', '');
-    setAreas([]);
-    setParishes([]);
-    if (zoneId) {
-      setIsHierarchyLoading(true);
-      try {
-        const data = await churchService.getAreas(zoneId);
-        setAreas(data);
-      } catch (err) {
-        console.error('Failed to fetch areas', err);
-      } finally {
-        setIsHierarchyLoading(false);
-      }
-    }
   };
 
-  const handleAreaChange = async (areaId: string) => {
+  const handleAreaChange = (areaId: string) => {
     handleChange('area', areaId);
     handleChange('parish', '');
-    setParishes([]);
-    if (areaId) {
-      setIsHierarchyLoading(true);
-      try {
-        const data = await churchService.getParishes(areaId);
-        setParishes(data);
-      } catch (err) {
-        console.error('Failed to fetch parishes', err);
-      } finally {
-        setIsHierarchyLoading(false);
-      }
-    }
   };
+
+  const selectedZone = hierarchyTree.find(z => z._id === formData.zone);
+  const availableAreas = selectedZone ? selectedZone.areas : [];
+  const selectedArea = availableAreas.find(a => a._id === formData.area);
+  const availableParishes = selectedArea ? selectedArea.parishes : [];
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -198,7 +179,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                   disabled={isLoading || isHierarchyLoading}
                 >
                   <option value="">Select Zone</option>
-                  {zones.map(z => <option key={z._id} value={z._id}>{z.name}</option>)}
+                  {hierarchyTree.map(z => <option key={z._id} value={z._id}>{z.name}</option>)}
                 </select>
               </div>
 
@@ -212,7 +193,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                   disabled={isLoading || isHierarchyLoading || !formData.zone}
                 >
                   <option value="">Select Area</option>
-                  {areas.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
+                  {availableAreas.map(a => <option key={a._id} value={a._id}>{a.name}</option>)}
                 </select>
               </div>
 
@@ -226,7 +207,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                   disabled={isLoading || isHierarchyLoading || !formData.area}
                 >
                   <option value="">Select Parish</option>
-                  {parishes.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
+                  {availableParishes.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}
                 </select>
               </div>
 
