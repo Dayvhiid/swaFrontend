@@ -3,33 +3,71 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Download, FileText, Loader2, AlertCircle } from 'lucide-react';
 import BottomNav from './BottomNav';
 import { dashboardService } from '../services/dashboardService';
+import { churchService } from '../services/churchService';
 
 interface TrendData {
   month: string;
   converts: number;
 }
 
-export default function ReportsDashboardScreen({ onNavigate }) {
-  const [parish, setParish] = useState('');
+export default function ReportsDashboardScreen({ onNavigate, initialParishId }: { onNavigate: any, initialParishId?: string | null }) {
+  const [parish, setParish] = useState(initialParishId || '');
   const [area, setArea] = useState('');
   const [zone, setZone] = useState('');
+  const [hierarchyTree, setHierarchyTree] = useState<any[]>([]);
   const [timePeriod, setTimePeriod] = useState<'daily' | 'monthly'>('monthly');
+
+  useEffect(() => {
+    let active = true;
+    churchService.getHierarchyTree().then(tree => {
+      if (!active) return;
+      setHierarchyTree(tree);
+    }).catch(console.error);
+    return () => { active = false; };
+  }, []);
+
+  // Set initial filters once tree is loaded
+  useEffect(() => {
+    if (hierarchyTree.length > 0 && initialParishId && !zone && !area && !parish) {
+      setParish(initialParishId);
+
+      let found = false;
+      for (const z of hierarchyTree) {
+        for (const a of z.areas || []) {
+          if (a.parishes?.some((p: any) => p._id === initialParishId)) {
+            setZone(z._id);
+            setArea(a._id);
+            found = true;
+            break;
+          }
+        }
+        if (found) break;
+      }
+    }
+  }, [hierarchyTree, initialParishId]);
   const [stats, setStats] = useState(null);
   const [trends, setTrends] = useState<TrendData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetchData();
-  }, [parish, area, zone, timePeriod]);
+    if (hierarchyTree.length > 0 || !initialParishId) {
+      fetchData();
+    }
+  }, [parish, area, zone, timePeriod, hierarchyTree.length]);
 
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
     try {
+      const filters: any = {};
+      if (zone) filters.zoneId = zone;
+      if (area) filters.areaId = area;
+      if (parish) filters.parishId = parish;
+
       const [summaryStats, growthTrends] = await Promise.all([
-        dashboardService.getSummaryStats(),
-        dashboardService.getGrowthTrends({ period: timePeriod })
+        dashboardService.getSummaryStats(filters),
+        dashboardService.getGrowthTrends({ period: timePeriod, ...filters })
       ]);
       console.log('Growth Trends Data:', growthTrends);
 
@@ -101,28 +139,33 @@ export default function ReportsDashboardScreen({ onNavigate }) {
           <div className="grid grid-cols-3 gap-2">
             <select
               value={zone}
-              onChange={(e) => setZone(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700"
+              onChange={(e) => { setZone(e.target.value); setArea(''); setParish(''); }}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
             >
-              <option value="">Zone</option>
-              <option value="north">North</option>
-              <option value="south">South</option>
+              <option value="">All Zones</option>
+              {hierarchyTree.map(z => <option key={z._id} value={z._id}>{z.name}</option>)}
             </select>
             <select
               value={area}
-              onChange={(e) => setArea(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700"
+              onChange={(e) => { setArea(e.target.value); setParish(''); }}
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+              disabled={!zone}
             >
-              <option value="">Area</option>
-              <option value="central">Central</option>
+              <option value="">All Areas</option>
+              {hierarchyTree.find(z => z._id === zone)?.areas?.map((a: any) => (
+                <option key={a._id} value={a._id}>{a.name}</option>
+              ))}
             </select>
             <select
               value={parish}
               onChange={(e) => setParish(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700"
+              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+              disabled={!area}
             >
-              <option value="">Parish</option>
-              <option value="grace">Grace</option>
+              <option value="">All Parishes</option>
+              {hierarchyTree.find(z => z._id === zone)?.areas?.find((a: any) => a._id === area)?.parishes?.map((p: any) => (
+                <option key={p._id} value={p._id}>{p.name}</option>
+              ))}
             </select>
           </div>
         </div>
@@ -205,7 +248,7 @@ export default function ReportsDashboardScreen({ onNavigate }) {
 
         {/* Action Button */}
         <button
-          onClick={() => onNavigate('detailed-report')}
+          onClick={() => onNavigate('detailed-report', { zone, area, parish })}
           className="w-full bg-blue-700 text-white py-3 rounded-xl hover:bg-blue-800 transition-colors flex items-center justify-center gap-2"
         >
           <FileText className="w-5 h-5" />

@@ -21,6 +21,11 @@ const formatDate = (dateString: string | null | undefined): string => {
 
 interface DetailedReportScreenProps {
   onNavigate: (screen: string) => void;
+  filters?: {
+    zone?: string;
+    area?: string;
+    parish?: string;
+  };
 }
 
 interface ReportRow {
@@ -33,21 +38,26 @@ interface ReportRow {
   lastUpdate: string;
 }
 
-export default function DetailedReportScreen({ onNavigate }: DetailedReportScreenProps) {
+export default function DetailedReportScreen({ onNavigate, filters }: DetailedReportScreenProps) {
   const [reportData, setReportData] = useState<ReportRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     fetchReportData();
-  }, []);
+  }, [filters]);
 
   const fetchReportData = async () => {
     setIsLoading(true);
     setError(null);
     try {
+      const apiFilters: any = {};
+      if (filters?.zone) apiFilters.zoneId = filters.zone;
+      if (filters?.area) apiFilters.areaId = filters.area;
+      if (filters?.parish) apiFilters.parishId = filters.parish;
+
       // Fetch all converts (you can add pagination later if needed)
-      const response = await convertService.listConverts(1, '', {});
+      const response = await convertService.listConverts(1, '', apiFilters);
       const converts = response.converts || [];
 
       // Transform the data to match the report format

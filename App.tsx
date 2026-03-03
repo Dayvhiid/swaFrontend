@@ -150,9 +150,14 @@ export default function App() {
   };
 
   const [selectedConvertId, setSelectedConvertId] = useState<string | null>(null);
+  const [reportFilters, setReportFilters] = useState<any>(null);
 
-  const navigate = (screen: string, id: string | null = null) => {
-    if (id) setSelectedConvertId(id);
+  const navigate = (screen: string, data: any = null) => {
+    if (screen === 'detailed-report' && typeof data === 'object' && data !== null) {
+      setReportFilters(data);
+    } else if (typeof data === 'string') {
+      setSelectedConvertId(data);
+    }
     setCurrentScreen(screen);
   };
 
@@ -203,7 +208,7 @@ export default function App() {
             <AddConvertScreen onNavigate={navigate} />
           )}
           {currentScreen === 'converts-list' && (
-            <ConvertsListScreen onNavigate={navigate} />
+            <ConvertsListScreen onNavigate={navigate} user={user} />
           )}
           {currentScreen === 'convert-details' && (
             <ConvertDetailsScreen onNavigate={navigate} convertId={selectedConvertId} />
@@ -212,10 +217,10 @@ export default function App() {
             <EditConvertScreen onNavigate={navigate} convertId={selectedConvertId} />
           )}
           {currentScreen === 'reports' && (
-            <ReportsDashboardScreen onNavigate={navigate} />
+            <ReportsDashboardScreen onNavigate={navigate} initialParishId={selectedConvertId} />
           )}
           {currentScreen === 'detailed-report' && (
-            <DetailedReportScreen onNavigate={navigate} />
+            <DetailedReportScreen onNavigate={navigate} filters={reportFilters} />
           )}
           {currentScreen === 'parish-admin' && (
             <ParishAdminScreen onNavigate={navigate} user={user} />

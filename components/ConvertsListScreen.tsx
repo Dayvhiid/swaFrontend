@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Search, ChevronRight, Plus, Loader2 } from 'lucide-react';
 import BottomNav from './BottomNav';
 import { convertService, Convert } from '../services/convertService';
+import { User } from '../services/authService';
 
-export default function ConvertsListScreen({ onNavigate }) {
+export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: any; user?: User | null }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [converts, setConverts] = useState<Convert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,7 +14,20 @@ export default function ConvertsListScreen({ onNavigate }) {
     const fetchConverts = async () => {
       setIsLoading(true);
       try {
-        const data = await convertService.listConverts(page, searchQuery);
+        // Determine filters based on user role
+        const filters: any = {};
+        if (user && user.role) {
+          // If parish admin, only fetch converts for their parish
+          if (user.role === 'parish_admin' && user.parishId) {
+            filters.parishId = user.parishId;
+          }
+          // If area admin, only fetch converts for their area
+          else if (user.role === 'area_admin' && user.areaId) {
+            filters.areaId = user.areaId;
+          }
+        }
+
+        const data = await convertService.listConverts(page, searchQuery, filters);
         console.log('Converts API response:', data);
 
         // Robust extraction of the list from various possible response structures
