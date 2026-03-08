@@ -174,7 +174,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                 <select
                   value={formData.zone}
                   onChange={(e) => handleZoneChange(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                   required
                   disabled={isLoading || isHierarchyLoading}
                 >
@@ -188,7 +188,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                 <select
                   value={formData.area}
                   onChange={(e) => handleAreaChange(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                   required
                   disabled={isLoading || isHierarchyLoading || !formData.zone}
                 >
@@ -202,7 +202,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                 <select
                   value={formData.parish}
                   onChange={(e) => handleChange('parish', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                   required
                   disabled={isLoading || isHierarchyLoading || !formData.area}
                 >
@@ -216,7 +216,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                 <select
                   value={formData.role}
                   onChange={(e) => handleChange('role', e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                   required
                   disabled={isLoading}
                 >

@@ -77,7 +77,7 @@ export default function ParishAdminScreen({ onNavigate, user }: { onNavigate: an
           <select
             value={selectedChurch}
             onChange={(e: any) => setSelectedChurch(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
           >
             <option value="">All Churches</option>
             {/* Sub-churches not yet supported in schema, showing placeholder */}

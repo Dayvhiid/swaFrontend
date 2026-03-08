@@ -144,7 +144,7 @@ export default function AddConvertScreen({ onNavigate }) {
               <select
                 value={formData.ageGroup}
                 onChange={(e) => handleChange('ageGroup', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                 disabled={isLoading}
               >
                 <option value="">Select</option>
@@ -160,7 +160,7 @@ export default function AddConvertScreen({ onNavigate }) {
               <select
                 value={formData.gender}
                 onChange={(e) => handleChange('gender', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                 disabled={isLoading}
               >
                 <option value="">Select</option>
@@ -176,7 +176,7 @@ export default function AddConvertScreen({ onNavigate }) {
               <select
                 value={formData.maritalStatus}
                 onChange={(e) => handleChange('maritalStatus', e.target.value)}
-                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+                className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
                 disabled={isLoading}
               >
                 <option value="">Select</option>

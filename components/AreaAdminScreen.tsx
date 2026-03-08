@@ -94,7 +94,7 @@ export default function AreaAdminScreen({ onNavigate, user }: { onNavigate: any,
           <select
             value={selectedParish}
             onChange={(e: any) => setSelectedParish(e.target.value)}
-            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700"
+            className="w-full px-4 py-2.5 border border-gray-200 rounded-xl text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
           >
             <option value="">All Parishes</option>
             {parishes.map(p => <option key={p._id} value={p._id}>{p.name}</option>)}

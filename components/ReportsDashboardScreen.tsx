@@ -140,7 +140,7 @@ export default function ReportsDashboardScreen({ onNavigate, initialParishId }: 
             <select
               value={zone}
               onChange={(e) => { setZone(e.target.value); setArea(''); setParish(''); }}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
             >
               <option value="">All Zones</option>
               {hierarchyTree.map(z => <option key={z._id} value={z._id}>{z.name}</option>)}
@@ -148,7 +148,7 @@ export default function ReportsDashboardScreen({ onNavigate, initialParishId }: 
             <select
               value={area}
               onChange={(e) => { setArea(e.target.value); setParish(''); }}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
               disabled={!zone}
             >
               <option value="">All Areas</option>
@@ -159,7 +159,7 @@ export default function ReportsDashboardScreen({ onNavigate, initialParishId }: 
             <select
               value={parish}
               onChange={(e) => setParish(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
+              className="w-full px-3 py-2.5 border border-gray-200 rounded-lg text-base sm:text-sm focus:outline-none focus:ring-2 focus:ring-blue-700 bg-white"
               disabled={!area}
             >
               <option value="">All Parishes</option>
