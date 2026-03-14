@@ -78,7 +78,15 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
         const response = await authService.signup(signupData);
         onSignup(response);
       } catch (err: any) {
-        setError(err.response?.data?.message || 'Signup failed. Please check your information.');
+        if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
+          const errorMessages = err.response.data.errors
+            .map((e: any) => e.msg)
+            .filter((msg: string) => msg)
+            .join('. ');
+          setError(errorMessages || 'Signup failed. Please check your information.');
+        } else {
+          setError(err.response?.data?.message || 'Signup failed. Please check your information.');
+        }
       } finally {
         setIsLoading(false);
       }

@@ -117,9 +117,9 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
                   </div>
                   <p className="text-sm text-gray-500 mb-2">{convert.phone}</p>
                   <div className="flex items-center gap-4 text-xs text-gray-400">
-                    <span>{convert.stage || 'Initial'}</span>
-                    <span>•</span>
-                    <span>{convert.lastUpdate || 'Just now'}</span>
+                    {/* <span>{convert.stage || 'Initial'}</span> */}
+                    {/* <span>•</span> */}
+                    {/* <span>{convert.lastUpdate || 'Just now'}</span> */}
                   </div>
                 </div>
                 <ChevronRight className="w-5 h-5 text-gray-400 flex-shrink-0" />
@@ -127,19 +127,18 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
 
               {/* Progress Dots */}
               <div className="mt-4 flex items-center gap-1.5">
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => {
-                  const isCompleted = (convert.visits && convert.visits.includes(num)) ||
-                    (convert.followUpVisits && convert.followUpVisits.find(v => v.visitNumber === num)?.isCompleted);
+                {/* {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => {
+                  const isCompleted = convert.followUpVisits?.find(v => v.visitNumber === num)?.isCompleted ?? false;
                   return (
                     <div
                       key={num}
                       className={`w-2 h-2 rounded-full ${isCompleted ? 'bg-blue-600' : 'bg-gray-200'}`}
-                      title={`Visit ${num}`}
+                      title={`Visit ${num}: ${isCompleted ? 'Completed' : 'Not yet visited'}`}
                     />
                   );
-                })}
+                })} */}
                 <span className="ml-2 text-[10px] text-gray-400 font-medium">
-                  {((convert.visits?.length || convert.followUpVisits?.filter(v => v.isCompleted).length || 0))} / 8
+                  {(convert.followUpVisits?.filter(v => v.isCompleted).length ?? 0)} / 8
                 </span>
               </div>
             </button>
