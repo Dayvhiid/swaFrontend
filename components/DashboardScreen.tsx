@@ -78,29 +78,8 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
           dashboardService.getPendingFollowUps(filters),
           convertService.listConverts(1, '', { pageSize: 100, ...filters }) // Fetch more to show in hover
         ]);
-        // If filters are active (parish/area admin), compute summary stats from the fetched converts list
-        if (filters.parishId || filters.areaId) {
-          // Use the `list` computed below to derive stats after parsing
-          // We'll parse the converts data into `list` first (duplicating logic below) and compute stats
-          let parsedList: Convert[] = [];
-          if (Array.isArray(allConvertsData)) {
-            parsedList = allConvertsData;
-          } else if (allConvertsData && typeof allConvertsData === 'object') {
-            parsedList = allConvertsData.converts || allConvertsData.data || allConvertsData.results || allConvertsData.items || [];
-            if (!Array.isArray(parsedList) && allConvertsData.result) {
-              parsedList = allConvertsData.result;
-            }
-          }
-
-          const totalConverts = parsedList.length;
-          const activeConverts = parsedList.filter(c => c.status?.toLowerCase() === 'active').length;
-          const completedConverts = parsedList.filter(c => c.status?.toLowerCase() === 'completed').length;
-          const retentionRate = totalConverts > 0 ? ((activeConverts / totalConverts) * 100).toFixed(2) : '0.00';
-
-          setStats({ totalConverts, activeConverts, completedConverts, retentionRate } as any);
-        } else {
-          setStats(summaryStats);
-        }
+        
+        setStats(summaryStats);
 
         // Handle pending list
         setPendingCount(pendingFollowUps.length);

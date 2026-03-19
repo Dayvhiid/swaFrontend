@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Search, CheckCircle2, XCircle, Shield, Mail, Loader2, Users, Clock, Filter } from 'lucide-react';
+import { ArrowLeft, CheckCircle2, XCircle, Shield, Mail, Loader2, Users, Clock, Filter } from 'lucide-react';
 import { userService } from '../services/userService';
 
 interface User {
@@ -92,13 +92,12 @@ export default function UserManagementScreen({ onNavigate }: { onNavigate: (scre
                 <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
                     <div className="flex flex-col sm:flex-row gap-4">
                         <div className="relative flex-1">
-                            <Search className="absolute left-3.5 top-1/2 transform -translate-y-1/2 w-4.5 h-4.5 text-gray-400" />
                             <input
                                 type="text"
                                 placeholder="Search by name, email, or role..."
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm placeholder:text-gray-400"
+                                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm placeholder:text-gray-400"
                             />
                         </div>
                     </div>
