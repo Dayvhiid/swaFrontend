@@ -1,3 +1,4 @@
+import axios from 'axios';
 import api from './api';
 
 export interface User {
@@ -31,8 +32,33 @@ export const authService = {
     },
 
     login: async (data: LoginData): Promise<AuthResponse> => {
-        const response = await api.post('/auth/login', data);
-        return response.data;
+        try {
+            const response = await api.post('/auth/login', data, {
+                headers: {
+                    'Content-Type': 'application/json',
+                    Accept: 'application/json',
+                },
+            });
+            return response.data;
+        } catch (error) {
+            if (axios.isAxiosError(error) && error.response?.status === 415) {
+                const formData = new URLSearchParams({
+                    email: data.email,
+                    password: data.password,
+                });
+
+                const fallbackResponse = await api.post('/auth/login', formData, {
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        Accept: 'application/json',
+                    },
+                });
+
+                return fallbackResponse.data;
+            }
+
+            throw error;
+        }
     },
 
     getProfile: async (): Promise<any> => {

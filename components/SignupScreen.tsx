@@ -5,6 +5,13 @@ import { churchService, HierarchyZone } from '../services/churchService';
 import { useEffect } from 'react';
 
 export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: any, onNavigateLogin: any }) {
+  const publicRoles = [
+    { value: 'soul_winner', label: 'Soul Winner' },
+    { value: 'parish_admin', label: 'Parish Admin' },
+    { value: 'area_admin', label: 'Area Admin' },
+    { value: 'zonal_admin', label: 'Zonal Admin' },
+  ];
+
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -229,12 +236,13 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
                   disabled={isLoading}
                 >
                   <option value="">Select Role</option>
-                  <option value="soul_winner">Soul Winner</option>
-                  <option value="parish_admin">Parish Admin</option>
-                  <option value="area_admin">Area Admin</option>
-                  <option value="zonal_admin">Zonal Admin</option>
-                  <option value="super_admin">Super Admin</option>
+                  {publicRoles.map(role => (
+                    <option key={role.value} value={role.value}>{role.label}</option>
+                  ))}
                 </select>
+                <p className="mt-2 text-xs text-gray-500">
+                  Super Admin accounts are provisioned separately and are not available through public signup.
+                </p>
               </div>
             </div>
           )}

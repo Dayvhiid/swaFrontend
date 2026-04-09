@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import { Sparkles, Mail, Lock, Loader2 } from 'lucide-react';
 import logo from 'figma:asset/612f7289b99c44abc1363d55b6e8ffe9274868e3.png';
 import { authService } from '../services/authService';
@@ -9,6 +10,25 @@ export default function LoginScreen({ onLogin, onNavigateSignup, onNavigateForgo
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const getRetryMessage = (retryAfter?: string) => {
+    if (!retryAfter) {
+      return 'Too many login attempts. Please wait a moment and try again.';
+    }
+
+    const retrySeconds = Number(retryAfter);
+    if (!Number.isNaN(retrySeconds)) {
+      return `Too many login attempts. Please try again in ${retrySeconds} seconds.`;
+    }
+
+    const retryDate = new Date(retryAfter);
+    if (!Number.isNaN(retryDate.getTime())) {
+      const waitSeconds = Math.max(1, Math.ceil((retryDate.getTime() - Date.now()) / 1000));
+      return `Too many login attempts. Please try again in about ${waitSeconds} seconds.`;
+    }
+
+    return 'Too many login attempts. Please wait a moment and try again.';
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
@@ -17,7 +37,20 @@ export default function LoginScreen({ onLogin, onNavigateSignup, onNavigateForgo
       const response = await authService.login({ email, password });
       onLogin(response);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+      if (axios.isAxiosError(err)) {
+        if (err.code === 'ERR_NETWORK') {
+          setError('Cannot reach the backend service. Ensure the API server is running and reachable.');
+        } else if (err.response?.status === 429) {
+          const retryAfter = err.response.headers?.['retry-after'];
+          setError(getRetryMessage(retryAfter));
+        } else if (err.response?.status === 415) {
+          setError('Login request format is not supported by the backend. Contact the API maintainer.');
+        } else {
+          setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+        }
+      } else {
+        setError('Login failed. Please check your credentials.');
+      }
     } finally {
       setIsLoading(false);
     }

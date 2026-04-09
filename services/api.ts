@@ -1,12 +1,9 @@
 import axios from 'axios';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_URL = import.meta.env.VITE_API_URL || '/api';
 
 const api = axios.create({
     baseURL: API_URL,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 // Request interceptor to add the JWT token to headers
@@ -28,10 +25,12 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
+            const requestUrl = String(error.config?.url || '');
+            const isAuthFormRequest = /\/auth\/(login|signup|forgot-password|reset-password)$/i.test(requestUrl);
             const message = error.response.data?.message?.toLowerCase();
             const isPendingValidation = message && message.includes('pending validation');
 
-            if (!isPendingValidation) {
+            if (!isPendingValidation && !isAuthFormRequest) {
                 // Handle unauthorized error (e.g., redirect to login)
                 localStorage.removeItem('swa_token');
                 localStorage.removeItem('swa_user');
