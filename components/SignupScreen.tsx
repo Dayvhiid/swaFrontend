@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { ChevronLeft, Check, Loader2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { ChevronLeft, Check, Loader2, Clock } from 'lucide-react';
 import { authService } from '../services/authService';
 import { churchService, HierarchyZone } from '../services/churchService';
-import { useEffect } from 'react';
 
 export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: any, onNavigateLogin: any }) {
   const publicRoles = [
@@ -14,6 +13,7 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
 
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSignupSuccess, setIsSignupSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -83,7 +83,12 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
           parishId: formData.parish
         };
         const response = await authService.signup(signupData);
-        onSignup(response);
+        
+        if (response.token) {
+          onSignup(response);
+        } else {
+          setIsSignupSuccess(true);
+        }
       } catch (err: any) {
         if (err.response?.data?.errors && Array.isArray(err.response.data.errors)) {
           const errorMessages = err.response.data.errors
@@ -99,6 +104,43 @@ export default function SignupScreen({ onSignup, onNavigateLogin }: { onSignup: 
       }
     }
   };
+
+  if (isSignupSuccess) {
+    return (
+      <div className="min-h-screen bg-white flex flex-col">
+        <div className="flex-1 px-6 py-8 flex items-center justify-center">
+          <div className="max-w-md w-full text-center">
+            <div className="w-20 h-20 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Clock className="w-10 h-10 text-blue-700" />
+            </div>
+            
+            <h2 className="text-2xl font-semibold text-gray-900 mb-4">Registration Successful!</h2>
+            
+            <div className="bg-blue-50 border border-blue-100 rounded-2xl p-6 mb-8 text-left">
+              <p className="text-blue-900 font-medium mb-2">Account Pending Validation</p>
+              <p className="text-blue-800/80 text-sm leading-relaxed">
+                Thank you for registering. Your account has been created successfully, but it needs to be validated by a Super Admin before you can log in.
+              </p>
+              <p className="text-blue-800/80 text-sm mt-4 leading-relaxed">
+                You will be able to access the dashboard once your zone's administrator approves your request. 
+              </p>
+            </div>
+
+            <button
+              onClick={onNavigateLogin}
+              className="w-full bg-blue-700 text-white py-4 rounded-xl font-medium hover:bg-blue-800 transition-colors shadow-sm"
+            >
+              Back to Login
+            </button>
+            
+            <p className="mt-6 text-sm text-gray-500">
+              Need help? Contact your zonal administrator.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white flex flex-col">
