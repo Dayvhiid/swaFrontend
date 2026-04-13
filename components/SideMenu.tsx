@@ -2,18 +2,25 @@ import React, { useState } from 'react';
 import { X, Shield, Building2, MapPin, Globe, ChevronDown, ChevronUp, ChevronLeft } from 'lucide-react';
 
 // Helper to normalize role names (handle both underscore and hyphen)
-const normalizeRole = (role) => {
+const normalizeRole = (role: string) => {
   if (!role) return '';
   return role.replace('-', '_').toLowerCase();
 };
 
 // Helper to check if user has one of the allowed roles
-const hasRole = (userRole, allowedRoles) => {
+const hasRole = (userRole: string, allowedRoles: string[]) => {
   const normalizedUserRole = normalizeRole(userRole);
   return allowedRoles.some(role => normalizeRole(role) === normalizedUserRole);
 };
 
-export default function SideMenu({ isOpen, onClose, onNavigate, user: propUser }) {
+interface SideMenuProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onNavigate: (screen: string) => void;
+  user: any;
+}
+
+export default function SideMenu({ isOpen, onClose, onNavigate, user: propUser }: SideMenuProps) {
   const [adminExpanded, setAdminExpanded] = useState(false);
 
   // Get user role safely - prefer prop, fallback to localStorage with correct key
@@ -54,8 +61,8 @@ export default function SideMenu({ isOpen, onClose, onNavigate, user: propUser }
           {user?.role && hasRole(user.role, ['parish_admin', 'area_admin', 'zonal_admin', 'super_admin']) && (
             <div className="flex-1 px-6 py-6 overflow-y-auto">
               <div className="space-y-4">
-                {/* Super Admin Hub - Always visible to Super Admins */}
-                {hasRole(user.role, ['super_admin']) && (
+                {/* Admin Hub - Dynamic title based on role */}
+                {user?.role && hasRole(user.role, ['parish_admin', 'area_admin', 'zonal_admin', 'super_admin']) && (
                   <button
                     onClick={() => {
                       onNavigate('user-management');
@@ -69,7 +76,11 @@ export default function SideMenu({ isOpen, onClose, onNavigate, user: propUser }
                         <Shield className="w-5 h-5 text-white" />
                       </div>
                       <div className="flex flex-col items-start">
-                        <span className="text-sm font-bold leading-none">Super Admin Hub</span>
+                        <span className="text-sm font-bold leading-none">
+                          {user.role === 'zonal_admin' ? 'Zonal Admin Hub' : 
+                           user.role === 'area_admin' ? 'Area Admin Hub' :
+                           user.role === 'parish_admin' ? 'Parish Admin Hub' : 'Super Admin Hub'}
+                        </span>
                         <span className="text-[10px] text-blue-100 font-medium mt-1">Manage Users & Access</span>
                       </div>
                     </div>

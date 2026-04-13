@@ -244,7 +244,7 @@ export default function App() {
             <NotificationSettingsScreen onNavigate={navigate} />
           )}
           {currentScreen === 'user-management' && (
-            <UserManagementScreen onNavigate={navigate} />
+            <UserManagementScreen onNavigate={navigate} user={user} />
           )}
         </div>
       </div>

@@ -10,7 +10,15 @@ interface User {
     isValidated: boolean;
 }
 
-export default function UserManagementScreen({ onNavigate }: { onNavigate: (screen: string) => void }) {
+export default function UserManagementScreen({ 
+    onNavigate, 
+    user: propUser 
+}: { 
+    onNavigate: (screen: string) => void,
+    user?: any
+}) {
+    // Get user safely - prefer prop, fallback to localStorage
+    const [loggedInUser, setLoggedInUser] = useState<any>(propUser);
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -18,8 +26,24 @@ export default function UserManagementScreen({ onNavigate }: { onNavigate: (scre
     const [processingId, setProcessingId] = useState<string | null>(null);
 
     useEffect(() => {
+        if (!loggedInUser) {
+            const storedUser = localStorage.getItem('swa_user');
+            if (storedUser) {
+                setLoggedInUser(JSON.parse(storedUser));
+            }
+        }
         fetchUsers();
     }, []);
+
+    const getHubTitle = () => {
+        const role = loggedInUser?.role || 'super_admin';
+        switch (role) {
+            case 'zonal_admin': return 'Zonal Admin Hub';
+            case 'area_admin': return 'Area Admin Hub';
+            case 'parish_admin': return 'Parish Admin Hub';
+            default: return 'Super Admin Hub';
+        }
+    };
 
     const fetchUsers = async () => {
         setIsLoading(true);
@@ -78,47 +102,48 @@ export default function UserManagementScreen({ onNavigate }: { onNavigate: (scre
                         >
                             <ArrowLeft className="w-5 h-5" />
                         </button>
-                        <div>
-                            <h1 className="text-xl font-bold text-gray-900 leading-tight">User Management</h1>
-                            <p className="text-xs text-gray-500 font-medium">Control and validate platform access</p>
-                        </div>
-                    </div>
-                    <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
-                        <Shield className="w-5 h-5 text-blue-700" />
+                    <div>
+                        <h1 className="text-xl font-bold text-gray-900 leading-tight">{getHubTitle()}</h1>
+                        <p className="text-xs text-gray-500 font-medium">Control and validate platform access</p>
                     </div>
                 </div>
-
-                {/* Search & Stats Bar */}
-                <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
-                    <div className="flex flex-col sm:flex-row gap-4">
-                        <div className="relative flex-1">
-                            <input
-                                type="text"
-                                placeholder="Search by name, email, or role..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm placeholder:text-gray-400"
-                            />
-                        </div>
-                    </div>
+                <div className="w-10 h-10 bg-blue-50 rounded-xl flex items-center justify-center border border-blue-100">
+                    <Shield className="w-5 h-5 text-blue-700" />
                 </div>
             </div>
 
-            <div className="flex-1 p-6 max-w-5xl mx-auto w-full">
-                {isLoading ? (
-                    <div className="flex flex-col items-center justify-center h-64">
-                        <div className="relative">
-                            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-                            <Shield className="w-4 h-4 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
-                        </div>
-                        <p className="text-gray-500 mt-4 font-medium">Loading user database...</p>
+            {/* Search & Stats Bar */}
+            <div className="px-6 py-4 bg-gray-50/50 border-t border-gray-100">
+                <div className="flex flex-col sm:flex-row gap-4">
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            placeholder="Search by name, email, or role..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            className="w-full px-4 py-2.5 bg-white border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all shadow-sm placeholder:text-gray-400"
+                        />
                     </div>
-                ) : error ? (
-                    <div className="bg-red-50 border border-red-100 text-red-600 p-5 rounded-2xl text-center shadow-sm">
-                        <Shield className="w-10 h-10 mx-auto mb-3 opacity-20" />
-                        <p className="font-semibold">{error}</p>
+                </div>
+            </div>
+        </div>
+
+        <div className="flex-1 p-6 max-w-5xl mx-auto w-full">
+            {isLoading ? (
+                <div className="flex flex-col items-center justify-center h-64">
+                    <div className="relative">
+                        <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
+                        <Shield className="w-4 h-4 text-blue-600 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 opacity-50" />
                     </div>
-                ) : (
+                    <p className="text-gray-500 mt-4 font-medium">Loading user database...</p>
+                </div>
+            ) : error ? (
+                <div className="bg-red-50 border border-red-100 text-red-600 p-5 rounded-2xl text-center shadow-sm">
+                    <Shield className="w-10 h-10 mx-auto mb-3 opacity-20" />
+                    <p className="font-semibold">{error}</p>
+                    <p className="text-sm mt-2 opacity-80">Please ensure you have the required administrative privileges.</p>
+                </div>
+            ) : (
                     <div className="space-y-6">
                         {/* Quick Stats */}
                         <div className="grid grid-cols-2 gap-4">

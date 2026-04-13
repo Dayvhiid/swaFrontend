@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Menu, Users, UserCheck, TrendingUp, ClipboardList, UserX, UserMinus, Loader2 } from 'lucide-react';
+import { Menu, Users, UserCheck, TrendingUp, ClipboardList, UserX, UserMinus, Loader2, Shield } from 'lucide-react';
 import BottomNav from './BottomNav';
 import SideMenu from './SideMenu';
 import logo from 'figma:asset/612f7289b99c44abc1363d55b6e8ffe9274868e3.png';
@@ -248,6 +248,17 @@ export default function DashboardScreen({ onNavigate, user }: DashboardScreenPro
 
         {/* Action Buttons (no heading) */}
         <div className="space-y-3">
+          {user?.role && ['super_admin', 'zonal_admin', 'area_admin', 'parish_admin'].includes(user.role) && (
+            <button
+              onClick={() => onNavigate('user-management')}
+              className="w-full bg-blue-50 text-blue-700 border border-blue-200 py-3 rounded-xl hover:bg-blue-100 transition-colors text-sm font-bold flex items-center justify-center gap-2"
+            >
+              <Shield className="w-4 h-4" />
+              {user.role === 'zonal_admin' ? 'Go to Zonal Admin Hub' : 
+               user.role === 'area_admin' ? 'Go to Area Admin Hub' :
+               user.role === 'parish_admin' ? 'Go to Parish Admin Hub' : 'Go to Super Admin Hub'}
+            </button>
+          )}
           <button
             onClick={() => onNavigate('add-convert')}
             className="w-full bg-blue-700 text-white py-3 rounded-xl hover:bg-blue-800 transition-colors text-sm font-medium"
