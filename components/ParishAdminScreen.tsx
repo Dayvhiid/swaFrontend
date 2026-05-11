@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Download, ChevronLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Download, ChevronLeft, Loader2, AlertCircle, Users, CheckCircle2 } from 'lucide-react';
 import BottomNav from './BottomNav';
 import { dashboardService, DashboardStats } from '../services/dashboardService';
 
@@ -44,6 +44,10 @@ export default function ParishAdminScreen({ onNavigate, user }: { onNavigate: an
     alert('Generating parish report...');
   };
 
+  const handleValidateSoulWinners = () => {
+    onNavigate('user-management');
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6">
@@ -84,6 +88,31 @@ export default function ParishAdminScreen({ onNavigate, user }: { onNavigate: an
             <option value="main">Main Parish</option>
           </select>
         </div>
+
+        {/* PRIMARY: Pending Soul Winners Card */}
+        {stats?.pendingSoulWinnersCount !== undefined && (
+          <div className="bg-gradient-to-br from-amber-50 to-orange-50 border-2 border-amber-200 rounded-xl p-5">
+            <div className="flex items-start justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-amber-100 rounded-lg">
+                  <Users className="w-5 h-5 text-amber-600" />
+                </div>
+                <div>
+                  <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Action Required</p>
+                  <p className="text-sm text-amber-900 font-medium">Soul Winners Pending Validation</p>
+                </div>
+              </div>
+            </div>
+            <p className="text-3xl font-bold text-amber-900 mb-4">{stats.pendingSoulWinnersCount}</p>
+            <button
+              onClick={handleValidateSoulWinners}
+              className="w-full bg-amber-600 hover:bg-amber-700 text-white py-2.5 rounded-lg font-semibold transition-colors flex items-center justify-center gap-2"
+            >
+              <CheckCircle2 className="w-4 h-4" />
+              View & Validate Accounts
+            </button>
+          </div>
+        )}
 
         {/* Summary Cards */}
         <div className="grid grid-cols-2 gap-3">

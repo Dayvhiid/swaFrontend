@@ -5,6 +5,7 @@ export interface DashboardStats {
     activeConverts: number;
     completedConverts: number;
     retentionRate: string;
+    pendingSoulWinnersCount?: number;
 }
 
 export const dashboardService = {

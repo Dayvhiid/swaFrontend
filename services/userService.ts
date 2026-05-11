@@ -33,4 +33,9 @@ export const userService = {
         const response = await api.patch(`/admin/users/${userId}/validate`, { isValidated });
         return response.data;
     },
+
+    getPendingSoulWinners: async (): Promise<any[]> => {
+        const response = await api.get('/admin/pending-soul-winners');
+        return response.data;
+    },
 };
