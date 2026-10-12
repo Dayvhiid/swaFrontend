@@ -78,5 +78,10 @@ export const churchService = {
     getAreaDetails: async (areaId: string): Promise<any> => {
         const response = await api.get(`/hierarchy/areas/${areaId}/details`);
         return response.data?.data || response.data || { soulWinners: [], converts: [] };
+    },
+
+    createParish: async (data: { name: string; areaId: string; description?: string }): Promise<Parish> => {
+        const response = await api.post('/hierarchy/parishes', data);
+        return response.data?.data || response.data;
     }
 };

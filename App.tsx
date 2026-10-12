@@ -19,6 +19,7 @@ import ChangePasswordScreen from './components/ChangePasswordScreen';
 import NotificationSettingsScreen from './components/NotificationSettingsScreen';
 import EditConvertScreen from './components/EditConvertScreen';
 import UserManagementScreen from './components/UserManagementScreen';
+import ManageParishScreen from './components/ManageParishScreen';
 import { AuthResponse, User } from './services/authService';
 
 export default function App() {
@@ -245,6 +246,9 @@ export default function App() {
           )}
           {currentScreen === 'user-management' && (
             <UserManagementScreen onNavigate={navigate} user={user} />
+          )}
+          {currentScreen === 'manage-parish' && (
+            <ManageParishScreen onNavigate={navigate} />
           )}
         </div>
       </div>

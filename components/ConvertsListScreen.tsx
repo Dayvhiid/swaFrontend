@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Search, ChevronRight, Plus, Loader2 } from 'lucide-react';
+import { Search, ChevronRight, ChevronLeft, Plus, Loader2 } from 'lucide-react';
 import BottomNav from './BottomNav';
 import { convertService, Convert } from '../services/convertService';
 import { User } from '../services/authService';
@@ -9,6 +9,7 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
   const [converts, setConverts] = useState<Convert[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [page, setPage] = useState(1);
+  const [pages, setPages] = useState(1);
 
   useEffect(() => {
     const fetchConverts = async () => {
@@ -32,6 +33,7 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
 
         // Robust extraction of the list from various possible response structures
         let list = [];
+        let totalPages = 1;
         if (Array.isArray(data)) {
           list = data;
         } else if (data && typeof data === 'object') {
@@ -41,9 +43,17 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
           if (!Array.isArray(list) && data.result) {
             list = data.result;
           }
+
+          if (typeof data.pages === 'number' && data.pages > 0) {
+            totalPages = data.pages;
+          }
         }
 
         setConverts(Array.isArray(list) ? list : []);
+        setPages(totalPages);
+        if (totalPages >= 1 && page > totalPages) {
+          setPage(totalPages);
+        }
       } catch (error) {
         console.error('Error fetching converts:', error);
       } finally {
@@ -78,7 +88,10 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
           <input
             type="text"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setPage(1);
+            }}
             className="w-full pl-11 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-700"
             placeholder="Search converts..."
           />
@@ -149,6 +162,31 @@ export default function ConvertsListScreen({ onNavigate, user }: { onNavigate: a
           </div>
         )}
       </div>
+
+      {/* Pagination controls */}
+      {!isLoading && pages > 1 && (
+        <div className="px-6 pb-4 flex items-center justify-between">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Previous
+          </button>
+          <span className="text-sm text-gray-500">
+            Page {page} of {pages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(pages, p + 1))}
+            disabled={page >= pages}
+            className="flex items-center gap-1 px-4 py-2 border border-gray-200 rounded-xl text-sm font-medium text-gray-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-gray-50"
+          >
+            Next
+            <ChevronRight className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       <BottomNav active="converts" onNavigate={onNavigate} />
     </div>
